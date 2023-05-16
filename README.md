@@ -44,14 +44,14 @@ Enter the below given code in a contract and deploy it :
       self.name = _name
       self.favouriteFood = _favouriteFood
       self.luckyNumber = _luckyNumber
+        }
     }
-  }
-    pub resource interface CollectionPub {
-    pub fun deposit(token: @NonFungibleToken.NFT)
-    pub fun getIDs(): [UInt64]
-    pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT
-    pub fun borrowAuthNFT(id: UInt64): &NonFungibleToken.NFT
-  }
+        pub resource interface CollectionPub {
+        pub fun deposit(token: @NonFungibleToken.NFT)
+        pub fun getIDs(): [UInt64]
+        pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT
+        pub fun borrowAuthNFT(id: UInt64): &NonFungibleToken.NFT
+    }
 
       pub resource Collection: NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic, CollectionPub {
       pub var ownedNFTs: @{UInt64: NonFungibleToken.NFT}
@@ -178,7 +178,7 @@ The NFT Metadata will be displayed now !
 
 ## Authors
 
-Greeshma SUrya
+Greeshma Surya
 
 ## License
 
