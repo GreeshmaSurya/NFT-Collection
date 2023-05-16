@@ -46,7 +46,7 @@ Enter the below given code in a contract and deploy it :
       self.luckyNumber = _luckyNumber
     }
   }
-  pub resource interface CollectionPub {
+    pub resource interface CollectionPub {
     pub fun deposit(token: @NonFungibleToken.NFT)
     pub fun getIDs(): [UInt64]
     pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT
