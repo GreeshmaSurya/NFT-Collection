@@ -22,23 +22,23 @@ Step 2 :
 
 Enter the below given code in a contract and deploy it :
 
-    import NonFungibleToken from 0x02
+  import NonFungibleToken from 0x02
 
-pub contract CryptoPoops: NonFungibleToken {
+  pub contract CryptoPoops: NonFungibleToken {
   pub var totalSupply: UInt64
 
   pub event ContractInitialized()
   pub event Withdraw(id: UInt64, from: Address?)
   pub event Deposit(id: UInt64, to: Address?)
 
-  pub resource NFT: NonFungibleToken.INFT {
+    pub resource NFT: NonFungibleToken.INFT {
     pub let id: UInt64
 
     pub let name: String
     pub let favouriteFood: String
     pub let luckyNumber: Int
 
-    init(_name: String, _favouriteFood: String, _luckyNumber: Int) {
+      init(_name: String, _favouriteFood: String, _luckyNumber: Int) {
       self.id = self.uuid
 
       self.name = _name
@@ -53,126 +53,128 @@ pub resource interface CollectionPub {
     pub fun borrowAuthNFT(id: UInt64): &NonFungibleToken.NFT
   }
 
-  pub resource Collection: NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic, CollectionPub {
+    pub resource Collection: NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic, CollectionPub {
     pub var ownedNFTs: @{UInt64: NonFungibleToken.NFT}
 
-    pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
+      pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
       let nft <- self.ownedNFTs.remove(key: withdrawID) 
             ?? panic("This NFT does not exist in this Collection.")
       emit Withdraw(id: nft.id, from: self.owner?.address)
       return <- nft
-    }
+      }
 
-    pub fun deposit(token: @NonFungibleToken.NFT) {
-      let nft <- token as! @NFT
-      emit Deposit(id: nft.id, to: self.owner?.address)
-      self.ownedNFTs[nft.id] <-! nft
-    }
+        pub fun deposit(token: @NonFungibleToken.NFT) {
+        let nft <- token as! @NFT
+        emit Deposit(id: nft.id, to: self.owner?.address)
+        self.ownedNFTs[nft.id] <-! nft
+        }
 
-    pub fun getIDs(): [UInt64] {
-      return self.ownedNFTs.keys
-    }
+     pub fun getIDs(): [UInt64] {
+         return self.ownedNFTs.keys
+        }
 
-    pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT {
-      return (&self.ownedNFTs[id] as &NonFungibleToken.NFT?)!
-    }
-pub fun borrowAuthNFT(id: UInt64): &NFT {
-      let ref = (&self.ownedNFTs[id] as auth &NonFungibleToken.NFT?)!
-      return ref as! &NFT
+        pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT {
+        return (&self.ownedNFTs[id] as &NonFungibleToken.NFT?)!
+        }
+    pub fun borrowAuthNFT(id: UInt64): &NFT {
+        let ref = (&self.ownedNFTs[id] as auth &NonFungibleToken.NFT?)!
+        return ref as! &NFT
+        }
+
+         init() {
+         self.ownedNFTs <- {}
+        }
+
+          destroy() {
+          destroy self.ownedNFTs
+      }
+     }
+
+      pub fun createEmptyCollection(): @NonFungibleToken.Collection {
+     return <- create Collection()
+     }
+
+     pub resource Minter {
+
+        pub fun createNFT(name: String, favouriteFood: String, luckyNumber: Int): @NFT {
+          return <- create NFT(_name: name, _favouriteFood: favouriteFood, _luckyNumber: luckyNumber)
+     }
+
+      pub fun createMinter(): @Minter {
+        return <- create Minter()
+        }
+
     }
 
     init() {
-      self.ownedNFTs <- {}
+        self.totalSupply = 0
+        emit ContractInitialized()
+        self.account.save(<- create Minter(), to: /storage/Minter)
     }
-
-    destroy() {
-      destroy self.ownedNFTs
     }
-  }
-
-  pub fun createEmptyCollection(): @NonFungibleToken.Collection {
-    return <- create Collection()
-  }
-
-  pub resource Minter {
-
-    pub fun createNFT(name: String, favouriteFood: String, luckyNumber: Int): @NFT {
-      return <- create NFT(_name: name, _favouriteFood: favouriteFood, _luckyNumber: luckyNumber)
-    }
-
-    pub fun createMinter(): @Minter {
-      return <- create Minter()
-    }
-
-  }
-
-  init() {
-    self.totalSupply = 0
-    emit ContractInitialized()
-    self.account.save(<- create Minter(), to: /storage/Minter)
-  }
-}
 
 Step 3 :
 
-Enter the below given transaction and sed it :
+Enter the below given transaction and send it :
 
     import CryptoPoops from 0x02
-import NonFungibleToken from 0x02
+    import NonFungibleToken from 0x02
 
-transaction() {
-  prepare(signer: AuthAccount) {
-    signer.save(<- CryptoPoops.createEmptyCollection(), to: /storage/MyCollection)
+    transaction() {
+    prepare(signer: AuthAccount) {
+        signer.save(<- CryptoPoops.createEmptyCollection(), to: /storage/MyCollection)
 
-    signer.link<&CryptoPoops.Collection{CryptoPoops.CollectionPub}>(/public/MyCollection, target: /storage/MyCollection)
-  }
+        signer.link<&CryptoPoops.Collection{CryptoPoops.CollectionPub}>(/public/MyCollection, target: /storage/MyCollection)
+    }
 
-  execute {
-    log("Collection Created!")
-  }
-}
+    execute {
+        log("Collection Created!")
+    }
+    }
 
 
 Step 4 :
 
 Mint an NFT by send the below given transaction :
 
-import CryptoPoops from 0x02
-import NonFungibleToken from 0x02
+    import CryptoPoops from 0x02
+    import NonFungibleToken from 0x02
 
-transaction(acc: Address, _name: String, _favFood: String, _luckyNo: Int) {
-  prepare(signer: AuthAccount) {
-    let minter = signer.borrow<&CryptoPoops.Minter>(from: /storage/Minter)!
+    transaction(acc: Address, _name: String, _favFood: String, _luckyNo: Int) {
+    prepare(signer: AuthAccount) {
+        let minter = signer.borrow<&CryptoPoops.Minter>(from: /storage/Minter)!
 
-    let pubRef = getAccount(acc).getCapability(/public/MyCollection)
-                    .borrow<&CryptoPoops.Collection{CryptoPoops.CollectionPub}>()
-                    ?? panic("Collection doesn't exist here")
+        let pubRef = getAccount(acc).getCapability(/public/MyCollection)
+                        .borrow<&CryptoPoops.Collection{CryptoPoops.CollectionPub}>()
+                        ?? panic("Collection doesn't exist here")
 
-    pubRef.deposit(token: <- minter.createNFT(name: _name, favouriteFood: _favFood, luckyNumber: _luckyNo))
-  }
+        pubRef.deposit(token: <- minter.createNFT(name: _name, favouriteFood: _favFood, luckyNumber: _luckyNo))
+    }
 
-  execute {
-    log("NFT Minted")
-  }
-}
+    execute {
+        log("NFT Minted")
+    }
+    }
 
 Step 5 :
 
 Execute the below given script :
 
-import CryptoPoops from 0x02
-import NonFungibleToken from 0x02
+    import CryptoPoops from 0x02
+    import NonFungibleToken from 0x02
 
-pub fun main(acc: Address, _id: UInt64): &NonFungibleToken.NFT {
-    let pubRef = getAccount(acc).getCapability(/public/MyCollection)
+    pub fun main(acc: Address, _id: UInt64): &NonFungibleToken.NFT {
+        let pubRef = getAccount(acc).getCapability(/public/MyCollection)
                     .borrow<&CryptoPoops.Collection{CryptoPoops.CollectionPub}>()
                     ?? panic("Collection doesn't exist here")
 
-    let ids = pubRef.getIDs()
+        let ids = pubRef.getIDs()
 
-    let nft = pubRef.borrowAuthNFT(id: ids[_id])
-    return nft
-}
+        let nft = pubRef.borrowAuthNFT(id: ids[_id])
+        return nft
+    }
+
+The NFT Metadata will be displayed now !
 
 ## Authors
 
