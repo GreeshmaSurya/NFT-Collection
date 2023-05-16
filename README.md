@@ -22,17 +22,17 @@ Step 2 :
 
 Enter the below given code in a contract and deploy it :
 
-  import NonFungibleToken from 0x02
+    import NonFungibleToken from 0x02
 
-  pub contract CryptoPoops: NonFungibleToken {
-  pub var totalSupply: UInt64
+    pub contract CryptoPoops: NonFungibleToken {
+    pub var totalSupply: UInt64
 
-  pub event ContractInitialized()
-  pub event Withdraw(id: UInt64, from: Address?)
-  pub event Deposit(id: UInt64, to: Address?)
+    pub event ContractInitialized()
+    pub event Withdraw(id: UInt64, from: Address?)
+    pub event Deposit(id: UInt64, to: Address?)
 
-    pub resource NFT: NonFungibleToken.INFT {
-    pub let id: UInt64
+      pub resource NFT: NonFungibleToken.INFT {
+      pub let id: UInt64
 
     pub let name: String
     pub let favouriteFood: String
@@ -46,15 +46,15 @@ Enter the below given code in a contract and deploy it :
       self.luckyNumber = _luckyNumber
     }
   }
-pub resource interface CollectionPub {
+  pub resource interface CollectionPub {
     pub fun deposit(token: @NonFungibleToken.NFT)
     pub fun getIDs(): [UInt64]
     pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT
     pub fun borrowAuthNFT(id: UInt64): &NonFungibleToken.NFT
   }
 
-    pub resource Collection: NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic, CollectionPub {
-    pub var ownedNFTs: @{UInt64: NonFungibleToken.NFT}
+      pub resource Collection: NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic, CollectionPub {
+      pub var ownedNFTs: @{UInt64: NonFungibleToken.NFT}
 
       pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
       let nft <- self.ownedNFTs.remove(key: withdrawID) 
